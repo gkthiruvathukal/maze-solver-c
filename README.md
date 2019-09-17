@@ -20,8 +20,8 @@ $ ./bin/maze file1 file2 ... fileN
 # Demo
 
 ```
-$ ./bin/maze ../2019FallProblems/Part4/HW17Maze/inputs/maze1
-../2019FallProblems/Part4/HW17Maze/inputs/maze1:
+$ ./bin/maze inputs/maze1
+inputs/maze1:
 > preprocessing
 > allocating
 > loading 9 x 14 maze
