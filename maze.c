@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/* Note to students. This is is kind of in a draft state, so I make no guarantees this is perfect or optimal.
+ * However, it seems to be working pretty well!
+ */
+
+/* These are constants to define the initial maze setup. */
+
 #define EMPTY -1
 #define WALL -2
 #define START -3
@@ -16,7 +22,9 @@ typedef struct _maze_data {
 
 
 /* These inline functions ensure safe handling of the underlying array. */
-/* assertions are used to ensure no unsafe access is performed */
+/* assertions are used to ensure no unsafe access is performed, thereby eliminating segmentation faults. */
+
+/* note that I do not expect students to know about inlining */
 
 #define INLINE static inline
 
@@ -48,13 +56,10 @@ INLINE void mazedata_allocate_maze(maze_data_t* maze_data)
 
 INLINE void mazedata_free_maze(maze_data_t* maze_data)
 {
-
     for (int row=0; row < maze_data->rows; row++)
         free(maze_data->maze[row]);
     free(maze_data->maze);
 }
-
-/* Read the input file to find number of rows & columns for dynamic allocation of the maze. */
 
 /* Read the input file to find number of rows & columns for dynamic allocation of the maze. */
 
@@ -204,8 +209,9 @@ int in_bounds(maze_data_t* maze_data, int trial_row, int trial_col) {
  */
 
 void maze_solve_recursive(maze_data_t *maze_data, int current_row, int current_col, int current_distance) {
-    //printf("visiting [%d,%d] = %d\n", current_row, current_col, current_distance);
-    mazedata_set(maze_data, current_row, current_col, current_distance);
+    int this_cell_distance = mazedata_get(maze_data, current_row, current_col);
+    if (this_cell_distance == EMPTY || current_distance < this_cell_distance)
+       mazedata_set(maze_data, current_row, current_col, current_distance);
 
     for (int i=-1; i < 2; i++ ) {
         for (int j=-1; j < 2; j++) {
@@ -218,8 +224,6 @@ void maze_solve_recursive(maze_data_t *maze_data, int current_row, int current_c
                 if (mazedata_get(maze_data, neighbor_row,neighbor_col) == EMPTY) {
                     /* distance increases by one relative to current row/col */
                     maze_solve_recursive(maze_data, neighbor_row, neighbor_col, current_distance+1);
-                } else {
-                    //printf("not visiting %d,%d; contains %d\n", neighbor_row, neighbor_col, maze_data->maze[neighbor_row][neighbor_col]);
                 }
             }
         }
@@ -234,7 +238,6 @@ void maze_solve_recursive(maze_data_t *maze_data, int current_row, int current_c
 void maze_solve(maze_data_t* maze_data) {
     int start_row, start_col;
     if (find_start(maze_data, &start_row, &start_col)) {
-        //printf("Starting at %d,%d\n",start_row, start_col);
         maze_solve_recursive(maze_data, start_row, start_col, 0 /* distance */);
     } else {
         fprintf(stderr, "At least one start 's' cell must be provided.\n");
@@ -257,7 +260,6 @@ int main(int argc, char** argv) {
         mazedata_allocate_maze(&maze_data);
         printf("> loading %d x %d maze\n", maze_data.rows, maze_data.cols);
         maze_load(&maze_data, argv[arg]);
-        //maze_print(&maze_data);
         printf("> solving\n");
         maze_solve(&maze_data);
         maze_print_distances(&maze_data);
