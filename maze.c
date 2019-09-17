@@ -215,7 +215,7 @@ void maze_solve_recursive(maze_data_t *maze_data, int current_row, int current_c
 
     for (int i=-1; i < 2; i++ ) {
         for (int j=-1; j < 2; j++) {
-            if (i == j || i + j == 0)
+            if (i == j || i + j == 0) /* restrict to NEWS neighbors */
                 continue;
             int neighbor_row = current_row + i;
             int neighbor_col = current_col + j;
